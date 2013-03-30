@@ -10,11 +10,12 @@
 Summary:	a GTK+2 interface to XRandR for LXDE desktop
 Name:		lxrandr
 Version:	0.1.2
-Release:	2
+Release:	3
 License:	GPL v3
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/lxde/%{name}-%{version}.tar.gz
 # Source0-md5:	8a7391581541bba58839ac11dbf5b575
+Patch0:		mate-desktop.patch
 URL:		http://wiki.lxde.org/en/LXRandR
 BuildRequires:	gettext-devel
 %{?with_gtk2:BuildRequires:	gtk+2-devel >= 2:2.12.0}
@@ -27,6 +28,7 @@ A GTK+ interface to XRandR for LXDE desktop.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %configure \
@@ -39,7 +41,7 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-%{__rm} -r $RPM_BUILD_ROOT%{_datadir}/locale/{frp,ur_PK,tt_RU}
+%{__rm} -r $RPM_BUILD_ROOT%{_localedir}/{frp,ur_PK,tt_RU}
 
 %find_lang %{name}
 
