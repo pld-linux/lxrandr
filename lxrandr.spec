@@ -1,47 +1,55 @@
 #
 # Conditional build:
-%bcond_with		gtk3		# build GTK+3 disables GTK+2
-%bcond_without		gtk2	# build with GTK+2
+%bcond_with	gtk3	# use GTK+3 instead of GTK+2
 
-%if %{with gtk3}
-%undefine	with_gtk2
-%endif
-
-Summary:	a GTK+2 interface to XRandR for LXDE desktop
+Summary:	GTK+ interface to XRandR for LXDE desktop
+Summary(pl.UTF-8):	Interfejs GTK+ do rozszerzenia XRandR dla środowiska LXDE
 Name:		lxrandr
-Version:	0.1.2
-Release:	4
-License:	GPL v3
+Version:	0.3.2
+Release:	1
+License:	GPL v2+
 Group:		X11/Applications
-Source0:	http://downloads.sourceforge.net/lxde/%{name}-%{version}.tar.gz
-# Source0-md5:	8a7391581541bba58839ac11dbf5b575
-Patch0:		mate-desktop.patch
-URL:		http://wiki.lxde.org/en/LXRandR
+Source0:	https://downloads.sourceforge.net/lxde/%{name}-%{version}.tar.xz
+# Source0-md5:	5101ab29d87fb2b56a5ec5bc8bc3f258
+URL:		http://www.lxde.org/
 BuildRequires:	gettext-tools
-%{?with_gtk2:BuildRequires:	gtk+2-devel >= 2:2.12.0}
-%{?with_gtk3:BuildRequires:	gtk+3-devel}
+%{!?with_gtk3:BuildRequires:	gtk+2-devel >= 2:2.12.0}
+%{?with_gtk3:BuildRequires:	gtk+3-devel >= 3.0.0}
+BuildRequires:	intltool
 BuildRequires:	pkgconfig
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
+%{!?with_gtk3:Requires:	gtk+2 >= 2:2.12.0}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 A GTK+ interface to XRandR for LXDE desktop.
 
+%description -l pl.UTF-8
+Interfejs GTK+ do rozszerzenia XRandR dla środowiska LXDE.
+
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %configure \
-	%{?with_gtk3:--enable-gtk3}
-touch po/stamp-it
+	%{?with_gtk3:--enable-gtk3} \
+	--disable-silent-rules
+
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-%{__rm} -r $RPM_BUILD_ROOT%{_localedir}/{frp,ur_PK,tt_RU}
+# unify name
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/{tt_RU,tt}
+# not supported by glibc
+%{__rm} -r $RPM_BUILD_ROOT%{_localedir}/frp
+# duplicate of ur
+%{__rm} -r $RPM_BUILD_ROOT%{_localedir}/ur_PK
 
 %find_lang %{name}
 
@@ -53,4 +61,4 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS README
 %attr(755,root,root) %{_bindir}/lxrandr
 %{_desktopdir}/lxrandr.desktop
-%{_mandir}/man1/lxrandr*
+%{_mandir}/man1/lxrandr.1*
